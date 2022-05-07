@@ -28,9 +28,8 @@ public:
 
     void enque(long val) {
         bool mustWakeDequeuers = false;
-        pthread_mutex_lock(&enqLock);
-
         Node *e = new Node(val);
+        pthread_mutex_lock(&enqLock);
         tail->next = e;
         tail = e;
         if(size.fetch_add(1) == 0) {
