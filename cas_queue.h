@@ -2,6 +2,7 @@
 #define LOCK_FREE_QUEUE_H
 
 #include <atomic>
+#include <pthread.h>
 
 class CASNode {
 public:

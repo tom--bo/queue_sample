@@ -1,11 +1,12 @@
 #include <iostream>
 #include <pthread.h>
 #include <unistd.h>
+#include <chrono>
 #include "lock_queue.h"
 #include "cas_queue.h"
 
-#define LIMIT 10000
-#define PRODUCER_TH_CNT 30
+#define LIMIT 100000
+#define PRODUCER_TH_CNT 100
 
 
 struct starter_block {
@@ -31,19 +32,19 @@ void *producer(void *) {
     for(int i = 1; i <= LIMIT; i++) {
         q<T>->enque(i);
     }
+    return nullptr;
 }
 
 template<class T>
-void *consumer(void *) {
+void *consumer(void *ret) {
     long tmp;
-    long sum = *(long*)(malloc(sizeof(long)));
-    sum = 0;
+    long *sum = (long *)ret;
     while(true) {
         tmp = q<T>->deque();
         if(tmp == -1) break;
-        sum += tmp;
+        *sum += tmp;
     }
-    return (void*)&sum;
+    return nullptr;
 }
 
 
@@ -52,7 +53,7 @@ void enqueue_benchmark() {
     q<T> = new T();
     // timer start
     pthread_t th[PRODUCER_TH_CNT] = {};
-    // start procucer threads
+    // start producer threads
     for(int i = 0; i < PRODUCER_TH_CNT; i++) {
         pthread_create(&th[i], NULL, producer<T>, nullptr);
     }
@@ -76,14 +77,15 @@ void enqueue_benchmark() {
 
     // check contents
     q<T>->enque(-1);
-    long sum = *(long *)consumer<T>(nullptr);
+    long sum = 0;
+    consumer<T>(&sum);
     // print result
     std::cout << sum << std::endl;
 }
 
 int main() {
     std::cout << "start" << std::endl;
-    enqueue_benchmark<UnBoundedQueue>();
-//    enqueue_benchmark<UnBoundedLockFreeQueue>();
+//    enqueue_benchmark<UnBoundedQueue>();
+    enqueue_benchmark<UnBoundedLockFreeQueue>();
     return 0;
 }

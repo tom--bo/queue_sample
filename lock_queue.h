@@ -2,6 +2,7 @@
 #define QUEUE_LOCK_QUEUE_H
 
 #include <atomic>
+#include <pthread.h>
 
 class Node {
 public:
