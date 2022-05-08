@@ -6,25 +6,18 @@
 class BoostLockFreeQueue {
 public:
     boost::lockfree::queue<long, boost::lockfree::capacity<20000> > q;
-    int retry;
-    BoostLockFreeQueue(int cap_dummy, int retry_cnt): retry(5){
-        retry = retry_cnt;
-    }
+    BoostLockFreeQueue(int) {}
 
     bool enque(long val) {
-        for(int i=0; i<retry; i++) {
-            if(q.push(val)) {
-                return true;
-            }
+        if(q.push(val)) {
+            return true;
         }
         return false;
     }
 
-    bool deque(long *ret) {
-        for(int i=0; i<retry; i++) {
-            if(q.pop(ret)) {
-                return true;
-            }
+    bool deque(long &ret) {
+        if(q.pop(ret)) {
+            return true;
         }
         return false;
     }

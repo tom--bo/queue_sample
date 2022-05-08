@@ -14,20 +14,20 @@ public:
     }
 };
 
-class UnBoundedQueue {
+class UnBoundedMutexLockQueue {
 public:
     pthread_mutex_t enqLock, deqLock;
     pthread_cond_t notEmptyCondition;
     std::atomic<int> size;
     Node *head, *tail;
-    UnBoundedQueue(): size(0) {
+    UnBoundedMutexLockQueue(int): size(0) {
         head = new Node(0);
         tail = head;
         pthread_mutex_init(&enqLock, NULL);
         pthread_mutex_init(&deqLock, NULL);
     }
 
-    void enque(long val) {
+    bool enque(long val) {
         bool mustWakeDequeuers = false;
         Node *e = new Node(val);
         pthread_mutex_lock(&enqLock);
@@ -42,19 +42,19 @@ public:
             pthread_cond_broadcast(&notEmptyCondition);
             pthread_mutex_unlock(&deqLock);
         }
+        return true;
     }
 
-    long deque() {
-        long result;
+    bool deque(long &ret) {
         pthread_mutex_lock(&deqLock);
         while(size.load() == 0) {
             pthread_cond_wait(&notEmptyCondition, &deqLock);
         }
-        result = head->next->value;
+        ret = head->next->value;
         head = head->next;
         size.fetch_sub(1);
         pthread_mutex_unlock(&deqLock);
-        return result;
+        return true;
     }
 };
 
