@@ -4,9 +4,10 @@
 #include <chrono>
 #include "lock_queue.h"
 #include "cas_queue.h"
+#include "boost_queue.h"
 
-#define LIMIT 100000
-#define PRODUCER_TH_CNT 100
+#define LIMIT 1000
+#define PRODUCER_TH_CNT 10
 
 
 struct starter_block {
@@ -86,6 +87,7 @@ void enqueue_benchmark() {
 int main() {
     std::cout << "start" << std::endl;
 //    enqueue_benchmark<UnBoundedQueue>();
-    enqueue_benchmark<UnBoundedLockFreeQueue>();
+//     enqueue_benchmark<UnBoundedLockFreeQueue>();
+    enqueue_benchmark<BoostLockFreeQueue>();
     return 0;
 }
