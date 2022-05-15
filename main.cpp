@@ -58,8 +58,7 @@ void *consumer(void *ret) {
 
 
 template<class T>
-void enqueue_benchmark() {
-    cout << "[START] enqueue benchmark" << endl;
+void enqueue_only_benchmark() {
     int capacity = 1000;
     q<T> = new T(capacity);
     // timer start
@@ -103,7 +102,7 @@ void enqueue_benchmark() {
 int main(int argc, char* argv[]) {
     if(argc != 4) {
         cout << "[ERROR] invalid arguments: " << endl;
-        cout << "(help) " << argv[0] << " {queue_type_number} {objects per thread} {thread_cnt}" << endl;
+        cout << "(help) " << argv[0] << " {queue_type_number} {operations per thread} {thread_cnt for each operation}" << endl;
         cout << "queue_type_number = 1~3" << endl;
         cout << "  1: UnboundedMutexQueue" << endl;
         cout << "  2: UnboundedLockFreeQueue" << endl;
@@ -116,10 +115,12 @@ int main(int argc, char* argv[]) {
 
     switch(queue_type_num) {
         case 1:
-            enqueue_benchmark<UnBoundedMutexLockQueue>();
+            cout << "[INFO] UnBoundedMutexLockQueue benchmark" << endl;
+            enqueue_only_benchmark<UnBoundedMutexLockQueue>();
             break;
         case 2:
-            enqueue_benchmark<UnBoundedLockFreeQueue>();
+            cout << "[INFO] UnBoundedLockFreeQueue benchmark" << endl;
+            enqueue_only_benchmark<UnBoundedLockFreeQueue>();
             break;
         // case 3:
         //     enqueue_benchmark<BoostLockFreeQueue>();
