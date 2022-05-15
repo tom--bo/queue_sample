@@ -23,21 +23,17 @@ public:
 
     bool enque(long val) {
         CASNode *node = new CASNode(val);
-        for(int i = 0; i < 5; i++) {
-            CASNode *last = tail.load();
-            CASNode *next = last->next.load();
-            if(last == tail.load()) {
-                if(next == nullptr) {
-                    if(last->next.compare_exchange_strong(next, node)) {
-                        tail.compare_exchange_strong(last, node);
-                        return true;
-                    }
-                } else {
-                    tail.compare_exchange_strong(last, next);
-                }
+        CASNode *last = tail.load();
+        CASNode *next = last->next.load();
+        if(last == tail.load()) {
+            if(next == nullptr) {
+                while(!last->next.compare_exchange_strong(next, node)) {}
+                tail.compare_exchange_strong(last, node);
+            } else {
+                tail.compare_exchange_strong(last, next);
             }
         }
-        return false;
+        return true;
     }
 
     bool deque(long &ret) {
