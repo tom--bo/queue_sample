@@ -32,7 +32,9 @@ void *producer(void *) {
         pthread_cond_wait(&producer_blocker->cond, &producer_blocker->mu);
     }
     pthread_mutex_unlock(&producer_blocker->mu);
+    struct timespec req{0, 10}, rem{0, 10};
     for(int i = 1; i <= objects_limit_per_thread; i++) {
+        // nanosleep(&req, &rem);
         if(q<T>->enque(i) == false) {
             (*failed_count)++;
             i--;
@@ -103,14 +105,14 @@ int main(int argc, char* argv[]) {
     if(argc != 4) {
         cout << "[ERROR] invalid arguments: " << endl;
         cout << "(help) " << argv[0] << " {queue_type_number} {operations per thread} {thread_cnt for each operation}" << endl;
-        cout << "queue_type_number = 1~3" << endl;
+        cout << "queue_type_number = 1~2" << endl;
         cout << "  1: UnboundedMutexQueue" << endl;
         cout << "  2: UnboundedLockFreeQueue" << endl;
         // cout << "  3: BoostLockFreeQueue" << endl;
         return 1;
     }
     int queue_type_num = stoi(argv[1]);
-    objects_limit_per_thread = stoi(argv[2]);
+    objects_limit_per_thread = stoi(argv[2]) / stoi(argv[3]);
     thread_count = stoi(argv[3]);
 
     switch(queue_type_num) {
